@@ -1,4 +1,7 @@
 
+읽어볼 것: https://coconuts.tistory.com/1034
+
+---
 stable diffusion 주요 용어 전부 말해봐
 
 ```
