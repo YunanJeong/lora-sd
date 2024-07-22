@@ -1,0 +1,12 @@
+[Unit]
+Description=FileBrowser
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/usr/local/bin/filebrowser -r /home/ubuntu/stable-diffusion-webui
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
