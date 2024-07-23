@@ -4,9 +4,10 @@ After=network.target
 
 [Service]
 Type=simple
-User=ubuntu
-ExecStart=/usr/local/bin/filebrowser -r /home/ubuntu/stable-diffusion-webui
+User=root
+ExecStart=/usr/local/bin/filebrowser --address 0.0.0.0 -r /home/ubuntu/stable-diffusion-webui
 Restart=always
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

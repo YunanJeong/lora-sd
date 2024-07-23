@@ -4,10 +4,11 @@ After=network.target
 
 [Service]
 Type=simple
-User=ubuntu
+User=root
 WorkingDirectory=/home/ubuntu/stable-diffusion-webui
 ExecStart=/usr/bin/python3 launch.py --listen --port 7860
 Restart=always
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
