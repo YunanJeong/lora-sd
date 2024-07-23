@@ -100,6 +100,7 @@ build {
 
   provisioner "shell" {
     inline = [
+      "curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh \| bash",
       "sudo mv /tmp/service/filebrowser.service /etc/systemd/system/filebrowser.service",
       "sudo systemctl enable filebrowser.service",
       // "sudo systemctl start filebrowser.service" // ami생성시엔 start 필요없음
