@@ -24,8 +24,7 @@ python3.10 -m venv venv/
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 cd stable-diffusion-webui
 echo python_cmd=\"python3.10\" >> webui-user.sh
-# cat requirements.txt > temp  &&  cat temp > requirements.txt  && rm -rf temp  # CRLF -> LF
-echo >> requirements.txt && echo xformers >> requirements.txt
+
 
 # 파이썬 모듈 및 sd1.5 등 기본모델 다운로드  # 재부팅 전까지 cuda 미적용상태이므로 실행은 안됨
-./webui.sh --skip-torch-cuda-test
+./webui.sh --skip-torch-cuda-test --xformers
