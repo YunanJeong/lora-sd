@@ -14,9 +14,9 @@ variable "aws_access_key" {
 variable "aws_secret_key" {
   default = env("AWS_SECRET_KEY")
 }
-variable "ubuntu_22_lts" {
+variable "ubuntu_24_lts" {
   default = {
-    ami  = "ami-063454de5fe8eba79"
+    ami  = "ami-062cf18d655c0b1e8"
     user = "ubuntu"
   }
 }
@@ -43,13 +43,13 @@ source "amazon-ebs" "example" {
   # AWS 자격증명 설정 (생략시 환경변수 또는 awscli의 default 프로필이 자동적용됨)
   // access_key = var.aws_access_key 
   // secret_key = var.aws_secret_key
-  // region     = "ap-northeast-2"
+  region     = "us-east-1"
   // profile    = "default" # ~/.aws/credentials에서 프로필 선택 명시
 
   # ami 생성을 위한 임시 인스턴스 설정
-  source_ami    = var.ubuntu_22_lts.ami
-  ssh_username  = var.ubuntu_22_lts.user
-  instance_type = "g4dn.2xlarge" # "c5.large"
+  source_ami    = var.ubuntu_24_lts.ami
+  ssh_username  = var.ubuntu_24_lts.user
+  instance_type = "g6.xlarge" # us-east-1
   run_tags      = var.tags
 
   # 결과물 ami 설정 (참고: ami_name과 ami의 tag Name은 다른 개념)
@@ -80,28 +80,34 @@ build {
   # 이미지에 포함될 앱 설치 & 서비스 실행 등 설정
   # packer ami 빌드절차: 임시 인스턴스 실행=>프로비저닝 스크립트 실행=>임시 인스턴스 종료=>이미지 생성
   provisioner "file" {
-    source      = "service"
-    destination = "/tmp/service"
+    source      = "files"
+    destination = "/tmp/files"
+  }
+  provisioner "shell" {
+    inline = [
+      "sudo chmod +x /tmp/files/*",
+      "sudo mv /tmp/files/*.service /etc/systemd/system/",
+      "sudo mv /tmp/files/*.sh /home/ubuntu/",
+      "./install_sd_webui.sh",
+      "sudo systemctl daemon-reload",
+      "sudo systemctl enable stable-diffusion-webui.service",
+    ]
   }
 
   provisioner "shell" {
     inline = [
-      "sudo apt-get update -y",
-      "sudo apt-get upgrade -y",
-      "sudo apt-get install -y git python3 python3-pip",
-      "git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git",
-      "cd stable-diffusion-webui",
-      "sudo pip3 install -r requirements.txt",
+
       # webui 서비스 실행
-      "sudo mv /tmp/service/stable-diffusion-webui.service /etc/systemd/system/stable-diffusion-webui.service",
-      "sudo systemctl enable stable-diffusion-webui.service"
+      "sudo mv /tmp/files/stable-diffusion-webui.service /etc/systemd/system/stable-diffusion-webui.service",
+      "sudo systemctl enable stable-diffusion-webui.service",
+      "sudo systemctl start stable-diffusion-webui.service"
     ]
   }
 
   provisioner "shell" {
     inline = [
       "curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh \| bash",
-      "sudo mv /tmp/service/filebrowser.service /etc/systemd/system/filebrowser.service",
+      "sudo mv /tmp/files/filebrowser.service /etc/systemd/system/filebrowser.service",
       "sudo systemctl enable filebrowser.service",
       // "sudo systemctl start filebrowser.service" // ami생성시엔 start 필요없음
     ]
