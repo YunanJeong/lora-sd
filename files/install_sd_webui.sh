@@ -15,16 +15,21 @@ sudo apt update -y
 sudo apt install -y python3.10 python3-pip python3.10-venv libgl1 libglib2.0-0
 
 # 파이썬 로컬경로 등록 (launch.py로 실행시 시스템환경 사용함)
-echo 'export PATH=$PATH:/home/ubuntu/.local/bin' >> ~/.bashrc
-source ~/.bashrc
+# echo 'export PATH=$PATH:/home/ubuntu/.local/bin' >> /home/ubuntu/.bashrc
+# source /home/ubuntu/.bashrc
 # 파이썬 가상환경 생성 (webui.sh로 실행시 자동으로 가상환경 선택함. 생성은 직접 필요)
+cd /home/ubuntu
 python3.10 -m venv venv/  
 
 # sd webui 다운로드
+cd /home/ubuntu
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 cd stable-diffusion-webui
 echo python_cmd=\"python3.10\" >> webui-user.sh
 
 
 # 파이썬 모듈 및 sd1.5 등 기본모델 다운로드  # 재부팅 전까지 cuda 미적용상태이므로 실행은 안됨
-./webui.sh --skip-torch-cuda-test --xformers
+# 세션점유를 막기 위해 백그라운드로 실행
+nohup ./webui.sh --skip-torch-cuda-test --xformers > /dev/null 2>&1 &
+# 사전파일 설치될 때까지 대기
+sleep 100

@@ -16,11 +16,11 @@ variable "aws_secret_key" {
 }
 variable "ubuntu_24_lts" {
   default = {
-    ami  = "ami-062cf18d655c0b1e8"
+    ami  = "ami-04a81a99f5ec58529" # us-east-1
     user = "ubuntu"
   }
 }
-
+# ami-0f7c4a792e3fb63c8 (us-east-1, Deep Learning Base OSS Nvidia Driver GPU AMI (Ubuntu 22.04))
 /*
 Name = "string-example-{{timestamp}}"  # 현재 타임스탬프를 포함
 Name = "string-example-{{uuid}}"       # UUID를 포함
@@ -43,7 +43,7 @@ source "amazon-ebs" "example" {
   # AWS 자격증명 설정 (생략시 환경변수 또는 awscli의 default 프로필이 자동적용됨)
   // access_key = var.aws_access_key 
   // secret_key = var.aws_secret_key
-  region     = "us-east-1"
+  region = "us-east-1"
   // profile    = "default" # ~/.aws/credentials에서 프로필 선택 명시
 
   # ami 생성을 위한 임시 인스턴스 설정
@@ -59,11 +59,11 @@ source "amazon-ebs" "example" {
   # 디스크 설정 (default 8GB라서 SD모델 포함시 크게 잡아줘야 함)
   launch_block_device_mappings { # 임시 인스턴스의 EBS
     device_name = "/dev/sda1"
-    volume_size = 15 # GB 단위
+    volume_size = 25 # GB 단위
   }
   ami_block_device_mappings { # 최종 결과물 ami의 EBS
     device_name = "/dev/sda1"
-    volume_size = 15 # GB
+    volume_size = 25 # GB
   }
 }
 
@@ -89,27 +89,10 @@ build {
       "sudo mv /tmp/files/*.service /etc/systemd/system/",
       "sudo mv /tmp/files/*.sh /home/ubuntu/",
       "./install_sd_webui.sh",
+      "./install_filebrowser.sh",
       "sudo systemctl daemon-reload",
-      "sudo systemctl enable stable-diffusion-webui.service",
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
-
-      # webui 서비스 실행
-      "sudo mv /tmp/files/stable-diffusion-webui.service /etc/systemd/system/stable-diffusion-webui.service",
-      "sudo systemctl enable stable-diffusion-webui.service",
-      "sudo systemctl start stable-diffusion-webui.service"
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
-      "curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh \| bash",
-      "sudo mv /tmp/files/filebrowser.service /etc/systemd/system/filebrowser.service",
-      "sudo systemctl enable filebrowser.service",
-      // "sudo systemctl start filebrowser.service" // ami생성시엔 start 필요없음
+      "sudo systemctl enable stable-diffusion-webui.service filebrowser.service"
+      # packer에서 start 할 필요없음
     ]
   }
 }
