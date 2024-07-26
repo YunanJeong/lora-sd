@@ -59,11 +59,11 @@ source "amazon-ebs" "example" {
   # 디스크 설정 (default 8GB라서 SD모델 포함시 크게 잡아줘야 함)
   launch_block_device_mappings { # 임시 인스턴스의 EBS
     device_name = "/dev/sda1"
-    volume_size = 25 # GB 단위
+    volume_size = 30 # GB 단위
   }
   ami_block_device_mappings { # 최종 결과물 ami의 EBS
     device_name = "/dev/sda1"
-    volume_size = 25 # GB
+    volume_size = 30 # GB
   }
 }
 
