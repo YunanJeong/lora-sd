@@ -32,7 +32,7 @@ Name = "string-example-{{user `custom_var`}}" # 사용자 정의 변수를 포�
 */
 variable "tags" {
   default = {
-    Name    = "yunan-sd-webui-{{timestamp}}"
+    Name    = "yunan-lora-sd-{{timestamp}}"
     Owner   = env("TAG_OWNER")
     Service = env("TAG_SERVICE")
     Packer  = true
@@ -59,11 +59,11 @@ source "amazon-ebs" "example" {
   # 디스크 설정 (default 8GB라서 SD모델 포함시 크게 잡아줘야 함)
   launch_block_device_mappings { # 임시 인스턴스의 EBS
     device_name = "/dev/sda1"
-    volume_size = 30 # GB 단위
+    volume_size = 36 # GB 단위
   }
   ami_block_device_mappings { # 최종 결과물 ami의 EBS
     device_name = "/dev/sda1"
-    volume_size = 30 # GB
+    volume_size = 36 # GB
   }
 }
 
@@ -88,10 +88,10 @@ build {
       "sudo chmod +x /tmp/files/*",
       "sudo mv /tmp/files/*.service /etc/systemd/system/",
       "sudo mv /tmp/files/*.sh /home/ubuntu/",
-      "./install_sd_webui.sh",
       "./install_filebrowser.sh",
+      "./install_sd_webui.sh  &&  ./install_lora_kohya.sh",
       "sudo systemctl daemon-reload",
-      "sudo systemctl enable stable-diffusion-webui.service filebrowser.service"
+      "sudo systemctl enable stable-diffusion-webui.service filebrowser.service lora-kohya.service"
       # packer에서 start 할 필요없음
     ]
   }

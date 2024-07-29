@@ -1,0 +1,14 @@
+[Unit]
+Description=kohya_ss for LoRA
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/kohya_ss
+ExecStart=/home/ubuntu/kohya_ss/gui.sh --listen=0.0.0.0 --headless
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
