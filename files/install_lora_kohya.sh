@@ -8,7 +8,7 @@
 # 단, python3-tk가 없을시 setup.sh 스크립트 진행이 안되도록 막혀있기 때문에 python3-tk도 설치
 # 앱 실제 동작에는 python3.10-tk가 사용된다.
 sudo apt update -y
-sudo apt install -y python3.10-tk python3-tk
+sudo apt install -y python3-tk python3.10-tk 
 
 # install kohya_ss
 git clone --recursive https://github.com/bmaltais/kohya_ss.git
