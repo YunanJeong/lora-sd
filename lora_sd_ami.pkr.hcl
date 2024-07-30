@@ -60,6 +60,7 @@ source "amazon-ebs" "example" {
   launch_block_device_mappings { # 임시 인스턴스의 EBS
     device_name = "/dev/sda1"
     volume_size = 36 # GB 단위
+    delete_on_termination = true  # 인스턴스 종료시 EBS 삭제. 설정안해주면 EBS 내역이 계속 쌓임 
   }
   ami_block_device_mappings { # 최종 결과물 ami의 EBS
     device_name = "/dev/sda1"
