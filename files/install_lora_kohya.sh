@@ -11,11 +11,8 @@ sudo apt update -y
 sudo apt install -y python3-tk python3.10-tk 
 
 # install kohya_ss
+cd $HOME
 git clone --recursive https://github.com/bmaltais/kohya_ss.git
 cd kohya_ss
 sudo chmod +x ./setup.sh
 ./setup.sh
-
-# Run
-# cd kohya_ss
-# ./setup-runpod.sh # ./gui.sh --listen=0.0.0.0 --headless

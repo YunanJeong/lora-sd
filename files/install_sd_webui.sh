@@ -18,7 +18,7 @@ sudo apt install -y python3.10 python3-pip python3.10-venv libgl1 libglib2.0-0
 
 
 # sd webui 다운로드
-# cd /home/ubuntu
+cd $HOME
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 cd stable-diffusion-webui
 echo python_cmd=\"python3.10\" >> webui-user.sh

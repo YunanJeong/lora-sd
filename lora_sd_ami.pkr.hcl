@@ -56,16 +56,16 @@ source "amazon-ebs" "example" {
   ami_name = "ami-${var.tags.Name}"
   tags     = var.tags
 
-  # 디스크 설정 (default 8GB라서 SD모델 포함시 크게 잡아줘야 함)
-  launch_block_device_mappings { # 임시 인스턴스의 EBS
-    device_name = "/dev/sda1"
-    volume_size = 36 # GB 단위
-    delete_on_termination = true  # 인스턴스 종료시 EBS 삭제. 설정안해주면 EBS 내역이 계속 쌓임 
+  # 임시 인스턴스의 EBS 설정
+  launch_block_device_mappings {
+    device_name           = "/dev/sda1"
+    volume_size           = 50   # GB  # ami의 기본 볼륨으로 그대로 적용됨
+    delete_on_termination = true # 인스턴스 종료시 EBS 삭제. 설정안해주면 EBS 내역이 계속 쌓임 
   }
-  ami_block_device_mappings { # 최종 결과물 ami의 EBS
-    device_name = "/dev/sda1"
-    volume_size = 36 # GB
-  }
+  // ami_block_device_mappings {
+  //   device_name = "/dev/sda1"
+  //   volume_type = "gp3"
+  // }
 }
 
 build {
@@ -85,15 +85,20 @@ build {
     destination = "/tmp/files"
   }
   provisioner "shell" {
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"] # CLI 비대화형모드 (debconf 경고방지)
     inline = [
+      "cloud-init status --wait", # 인스턴스 초기화 작업 종료까지 대기 (에러방지)
+
       "sudo chmod +x /tmp/files/*",
       "sudo mv /tmp/files/*.service /etc/systemd/system/",
-      "sudo mv /tmp/files/*.sh /home/ubuntu/",
-      "./install_filebrowser.sh",
-      "./install_sd_webui.sh  &&  ./install_lora_kohya.sh",
+      "/tmp/files/install_filebrowser.sh",
+      "/tmp/files/install_sd_webui.sh  &&  /tmp/files/install_lora_kohya.sh",
       "sudo systemctl daemon-reload",
-      "sudo systemctl enable stable-diffusion-webui.service filebrowser.service lora-kohya.service"
-      # packer에서 start 할 필요없음
+      "sudo systemctl enable stable-diffusion-webui.service filebrowser.service lora-kohya.service",
+
+      # 불필요파일 삭제(용량 확보)
+      "python3.10 -m pip cache purge", # python3.10 -m pip cache dir, pip3 cache dir, pip cache dir로 캐시 경로 확인가능
+      "sudo apt clean  ;  sudo rm -rf ~/.cache  ;  sudo rm -rf /tmp/*",
     ]
   }
 }
