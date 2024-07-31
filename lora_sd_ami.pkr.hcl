@@ -14,25 +14,32 @@ variable "aws_access_key" {
 variable "aws_secret_key" {
   default = env("AWS_SECRET_KEY")
 }
-variable "ubuntu_24_lts" {
+variable "ubuntu24_lts" {
   default = {
     ami  = "ami-04a81a99f5ec58529" # us-east-1
     user = "ubuntu"
+    setup  = "cd /tmp/files && ./install_nvidia_cuda.sh && ./install_python.sh && ./install_apps.sh"
   }
 }
-# ami-0f7c4a792e3fb63c8 (us-east-1, Deep Learning Base OSS Nvidia Driver GPU AMI (Ubuntu 22.04))
+variable "ubuntu22_gpu" {
+  default = {
+    ami  = "ami-0f7c4a792e3fb63c8" # us-east-1, Deep Learning Base OSS Nvidia Driver GPU AMI (Ubuntu 22.04)
+    user = "ubuntu" 
+    setup = "cd /tmp/files && ./install_apps.sh"
+  }
+}
+
 /*
 Name = "string-example-{{timestamp}}"  # 현재 타임스탬프를 포함
 Name = "string-example-{{uuid}}"       # UUID를 포함
 Name = "string-example-{{isotime}}"    # ISO 8601 형식의 현재 시간을 포함
-Name = "{{clean_ami_name `string-example-{{isotime}}`}}"  # AMI 이름에서 AWS에서 허용하지 않는 문자를 제거
 Name = "string-example-{{build_name}}" # 현재 빌드의 이름을 포함
 Name = "string-example-{{build_type}}" # 현재 빌드의 타입을 포함
 Name = "string-example-{{user `custom_var`}}" # 사용자 정의 변수를 포함
 */
 variable "tags" {
   default = {
-    Name    = "yunan-lora-sd-{{timestamp}}"
+    Name    = "lora-sd-ubuntu22-gpu-{{ timestamp }}"
     Owner   = env("TAG_OWNER")
     Service = env("TAG_SERVICE")
     Packer  = true
@@ -47,8 +54,8 @@ source "amazon-ebs" "example" {
   // profile    = "default" # ~/.aws/credentials에서 프로필 선택 명시
 
   # ami 생성을 위한 임시 인스턴스 설정
-  source_ami    = var.ubuntu_24_lts.ami
-  ssh_username  = var.ubuntu_24_lts.user
+  source_ami    = var.ubuntu22_gpu.ami
+  ssh_username  = var.ubuntu22_gpu.user
   instance_type = "g6.xlarge" # us-east-1
   run_tags      = var.tags
 
@@ -59,27 +66,18 @@ source "amazon-ebs" "example" {
   # 임시 인스턴스의 EBS 설정
   launch_block_device_mappings {
     device_name           = "/dev/sda1"
-    volume_size           = 50   # GB  # ami의 기본 볼륨으로 그대로 적용됨
+    volume_size           = 100  # GB  # ami의 기본 볼륨으로 그대로 적용됨
     delete_on_termination = true # 인스턴스 종료시 EBS 삭제. 설정안해주면 EBS 내역이 계속 쌓임 
   }
-  // ami_block_device_mappings {
-  //   device_name = "/dev/sda1"
-  //   volume_type = "gp3"
-  // }
 }
 
 build {
-  # 빌드 블록이 여러 개 있을 시 식별용 이름(이미지 이름 아님)
   name = "my-ami-builder"
-  # 소스 빌더 지정
   sources = [
-    # AWS AMI 생성시 일반적인 소스빌더(거의 이것만 쓴다고 생각해도 무방)  
-    # EBS 볼륨기반으로 AMI를 생성 (EBS기반이 아니면 데이터 보존이 안됨)
     "source.amazon-ebs.example"
   ]
 
   # 이미지에 포함될 앱 설치 & 서비스 실행 등 설정
-  # packer ami 빌드절차: 임시 인스턴스 실행=>프로비저닝 스크립트 실행=>임시 인스턴스 종료=>이미지 생성
   provisioner "file" {
     source      = "files"
     destination = "/tmp/files"
@@ -91,8 +89,8 @@ build {
 
       "sudo chmod +x /tmp/files/*",
       "sudo mv /tmp/files/*.service /etc/systemd/system/",
-      "/tmp/files/install_filebrowser.sh",
-      "/tmp/files/install_sd_webui.sh  &&  /tmp/files/install_lora_kohya.sh",
+      
+      var.ubuntu22_gpu.setup,
       "sudo systemctl daemon-reload",
       "sudo systemctl enable stable-diffusion-webui.service filebrowser.service lora-kohya.service",
 
