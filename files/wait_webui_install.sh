@@ -4,6 +4,8 @@
 
 # 포트 번호
 PORT=7859
+MAX_RETRIES=60
+RETRY_COUNT=0
 
 # 정상 응답이 올 때까지 무한 루프
 while true; do
@@ -32,7 +34,17 @@ while true; do
     # 루프 종료
     break
   else
-    echo "Port $PORT is not active or returned a non-200 response. Retrying..."
+
+    # 재시도 횟수 증가
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    echo "Port $PORT is not active or returned a non-200 response. Retrying ($RETRY_COUNT)..."
+    
+    # 최대 재시도 횟수에 도달시 종료
+    if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
+      echo "Maximum retry attempts reached. Exiting..."
+      break
+    fi
+
     # 10초 대기 후 다시 시도
     sleep 10
   fi
