@@ -77,26 +77,40 @@ build {
     "source.amazon-ebs.example"
   ]
 
-  # 이미지에 포함될 앱 설치 & 서비스 실행 등 설정
   provisioner "file" {
     source      = "files"
     destination = "/tmp/files"
   }
   provisioner "shell" {
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"] # CLI 비대화형모드 (debconf 경고방지)
+    expect_disconnect = true  # disconnect되어도 에러취급 X. reboot 대응.
     inline = [
       "cloud-init status --wait", # 인스턴스 초기화 작업 종료까지 대기 (에러방지)
-
       "sudo chmod +x /tmp/files/*",
       "sudo mv /tmp/files/*.service /etc/systemd/system/",
       
-      var.ubuntu24_lts.setup,
+      "cd /tmp/files && ./install_nvidia_cuda.sh && ./install_python.sh",
+      "sudo reboot",
+    ]
+    pause_after="15s"  # 안정적인 재부팅처리를 위해 작업 후 대기
+  }
+
+  provisioner "file" {
+    source      = "files"
+    destination = "/tmp/files"
+  }
+  provisioner "shell" {
+    pause_before="15s"  # 안정적인 재부팅처리를 위해 작업 전 대기
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"] # CLI 비대화형모드 (debconf 경고방지)
+    inline = [
+      "sudo chmod +x /tmp/files/*",
+      "cd /tmp/files && ./install_apps.sh",
       "sudo systemctl daemon-reload",
       "sudo systemctl enable stable-diffusion-webui.service filebrowser.service lora-kohya.service",
 
       # 불필요파일 삭제(용량 확보)
       "python3.10 -m pip cache purge", # python3.10 -m pip cache dir, pip3 cache dir, pip cache dir로 캐시 경로 확인가능
-      "sudo apt clean  ;  sudo rm -rf ~/.cache  ;  sudo rm -rf /tmp/*",
+      "sudo apt clean  ;  sudo rm -rf /tmp/*",
     ]
   }
 }
