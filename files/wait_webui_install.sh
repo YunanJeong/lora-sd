@@ -4,7 +4,7 @@
 
 # 포트 번호
 PORT=7859
-MAX_RETRIES=60
+MAX_RETRIES=120
 RETRY_COUNT=0
 
 # 무한 루프
