@@ -6,7 +6,8 @@ After=network.target
 Type=simple
 User=ubuntu
 WorkingDirectory=/home/ubuntu/stable-diffusion-webui
-ExecStartPre=/usr/bin/sleep 5
+# 포트점유 이슈가 있으므로 사전 kill
+ExecStartPre=/bin/bash -c 'PORT=7860; PID=$(lsof -t -i:$PORT); echo "targetPID: $PID"; [ -n "$PID" ] && (kill -9 $PID && echo "Application on port $PORT has been terminated.") || echo "No process found on port $PORT."'
 ExecStart=/home/ubuntu/stable-diffusion-webui/webui.sh --listen --port 7860
 Restart=always
 RestartSec=10
