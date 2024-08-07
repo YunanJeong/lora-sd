@@ -94,7 +94,10 @@ build {
       "sudo systemctl daemon-reload",
       "sudo systemctl enable stable-diffusion-webui.service filebrowser.service lora-kohya.service",
 
-      "mkdir image model upload",
+      # 디렉토리
+      "sudo mkdir image model upload",
+      "sudo rm -rf BUILD_FROM_SOURCE_PACKAGES_LICENCES LINUX_PACKAGES_LICENSES LINUX_PACKAGES_LIST OSSNvidiaDriver_v535.183.01_license.txt PYTHON_PACKAGES_LICENSES THIRD_PARTY_SOURCE_CODE_URLS",
+
 
       # 불필요파일 삭제(용량 확보)
       "python3.10 -m pip cache purge", # python3.10 -m pip cache dir, pip3 cache dir, pip cache dir로 캐시 경로 확인가능
