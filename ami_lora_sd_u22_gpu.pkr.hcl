@@ -84,7 +84,6 @@ build {
   }
   provisioner "shell" {
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"] # CLI 비대화형모드 (debconf 경고방지)
-    expect_disconnect = true
     inline = [
       "cloud-init status --wait", # 인스턴스 초기화 작업 종료까지 대기 (에러방지)
 
@@ -94,6 +93,8 @@ build {
       var.ubuntu22_gpu.setup,
       "sudo systemctl daemon-reload",
       "sudo systemctl enable stable-diffusion-webui.service filebrowser.service lora-kohya.service",
+
+      "mkdir image model upload",
 
       # 불필요파일 삭제(용량 확보)
       "python3.10 -m pip cache purge", # python3.10 -m pip cache dir, pip3 cache dir, pip cache dir로 캐시 경로 확인가능

@@ -108,6 +108,8 @@ build {
       "sudo systemctl daemon-reload",
       "sudo systemctl enable stable-diffusion-webui.service filebrowser.service lora-kohya.service",
 
+      "mkdir image model upload",
+
       # 불필요파일 삭제(용량 확보)
       "python3.10 -m pip cache purge", # python3.10 -m pip cache dir, pip3 cache dir, pip cache dir로 캐시 경로 확인가능
       "sudo apt clean  ;  sudo rm -rf /tmp/*",
