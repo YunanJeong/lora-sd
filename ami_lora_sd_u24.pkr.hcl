@@ -106,7 +106,7 @@ build {
       "sudo chmod +x /tmp/files/*",
       "cd /tmp/files && ./install_apps.sh",
       "sudo systemctl daemon-reload",
-      "sudo systemctl enable stable-diffusion-webui.service filebrowser.service lora-kohya.service",
+      "sudo systemctl enable ongen-browser ongen-kohya ongen-sd-webui",
 
       # 디렉토리
       "sudo mkdir image model upload",
