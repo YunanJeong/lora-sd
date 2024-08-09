@@ -1,6 +1,7 @@
 # lora-sd
 
 LoRA(Low Rank Adaptation), Stable-Diffusion(Model), Packer
+주문형 생성 AI(On-demand Generative AI)를 위한 이미지
 
 ## 소스 이미지
 
